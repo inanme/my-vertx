@@ -15,6 +15,6 @@ public class Standard extends AbstractVerticle {
                 vertx.eventBus().send(
                         "xman",
                         atomicInteger.getAndIncrement(),
-                        event -> System.err.println(event.result().body())));
+                        event -> System.err.printf("%s %s%n", Thread.currentThread().getName(), event.result().body())));
     }
 }

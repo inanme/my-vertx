@@ -18,7 +18,7 @@ public class Worker extends AbstractVerticle {
     public void start(Future<Void> future) {
         vertx.eventBus().consumer("xman", message -> {
                     int intMessage = (int) message.body();
-                    System.err.printf("%s %d %d\n", Thread.currentThread().getName(), id, intMessage);
+            System.err.printf("%s %d %d%n", Thread.currentThread().getName(), id, intMessage);
                     message.reply((int) message.body() * 2);
                 }
         );
