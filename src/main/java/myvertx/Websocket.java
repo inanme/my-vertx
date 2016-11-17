@@ -2,11 +2,8 @@ package myvertx;
 
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
-import io.vertx.core.cli.CLI;
 
-import java.util.Optional;
-
-public class Websocket extends AbstractVerticle {
+class Websocket extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> future) {

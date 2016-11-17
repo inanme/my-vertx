@@ -2,7 +2,7 @@ package myvertx;
 
 import io.vertx.core.*;
 
-public class ConsumerMain extends AbstractVerticle {
+class ConsumerMain extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> future) {

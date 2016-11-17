@@ -10,7 +10,7 @@ import rx.Observable;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Rxified extends io.vertx.rxjava.core.AbstractVerticle {
+class Rxified extends io.vertx.rxjava.core.AbstractVerticle {
 
     private final AtomicInteger atomicInteger = new AtomicInteger();
 

@@ -5,7 +5,7 @@ import io.vertx.core.Future;
 
 import java.util.Optional;
 
-public class Verticle1 extends AbstractVerticle {
+class Verticle1 extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> future) {

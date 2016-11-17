@@ -11,7 +11,7 @@ import io.vertx.servicediscovery.types.HttpEndpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MyRestAPIVerticle extends AbstractVerticle {
+class MyRestAPIVerticle extends AbstractVerticle {
 
     public static void main(String... args1) {
         String[] args = {"run", MyRestAPIVerticle.class.getName()};
@@ -76,10 +76,9 @@ public class MyRestAPIVerticle extends AbstractVerticle {
                 "/names"),
                 ar -> {
                     if (ar.succeeded()) {
-                        System.out.println("REST API published");
+                        Functions.log("REST API published");
                     } else {
-                        System.out.println("Unable to publish the REST API: " +
-                                ar.cause().getMessage());
+                        Functions.log("Unable to publish the REST API: " + ar.cause().getMessage());
                     }
                 });
 

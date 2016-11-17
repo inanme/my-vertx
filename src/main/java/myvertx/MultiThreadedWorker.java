@@ -3,7 +3,7 @@ package myvertx;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.Future;
 
-public class MultiThreadedWorker extends AbstractVerticle {
+class MultiThreadedWorker extends AbstractVerticle {
 
     @Override
     public void start(Future<Void> future) {

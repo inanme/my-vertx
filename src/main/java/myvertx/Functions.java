@@ -20,6 +20,6 @@ class Functions {
     }
 
     static void log(Object log) {
-        System.err.format("%s %s: %s \n", now(), Thread.currentThread().getName(), log);
+        System.err.format("%s %s: %s%n", now(), Thread.currentThread().getName(), log);
     }
 }

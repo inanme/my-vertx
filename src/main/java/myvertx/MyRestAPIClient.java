@@ -13,12 +13,12 @@ import io.vertx.servicediscovery.types.HttpEndpoint;
 
 import java.util.concurrent.TimeUnit;
 
-public class MyRestAPIClient {
+class MyRestAPIClient {
 
     private HttpClient client;
 
-    public MyRestAPIClient(ServiceDiscovery discovery,
-                           Handler<AsyncResult<Void>> completionHandler) {
+    MyRestAPIClient(ServiceDiscovery discovery,
+                    Handler<AsyncResult<Void>> completionHandler) {
         HttpEndpoint.getClient(discovery,
                 new JsonObject().put("name", "my-rest-api"),
                 ar -> {
@@ -32,7 +32,7 @@ public class MyRestAPIClient {
                 });
     }
 
-    public MyRestAPIClient(Vertx vertx) {
+    MyRestAPIClient(Vertx vertx) {
         // Create the HTTP client and configure the host and post.
         client = vertx.createHttpClient(new HttpClientOptions()
                 .setDefaultHost("localhost")
@@ -83,15 +83,14 @@ public class MyRestAPIClient {
         Vertx vertx = Vertx.vertx();
         ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
         MyRestAPIClient client = new MyRestAPIClient(discovery, event -> {
-            System.out.println(event.succeeded());
+            Functions.log(event.succeeded());
         });
         TimeUnit.SECONDS.sleep(2);
         client.getNames(ar -> {
             if (ar.succeeded()) {
-                System.out.println("Names: " + ar.result().encode());
+                Functions.log("Names: " + ar.result().encode());
             } else {
-                System.out.println("Unable to retrieve the list of names: "
-                        + ar.cause().getMessage());
+                Functions.log("Unable to retrieve the list of names: " + ar.cause().getMessage());
             }
         });
     }
