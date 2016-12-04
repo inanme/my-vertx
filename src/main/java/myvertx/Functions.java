@@ -11,7 +11,7 @@ class Functions {
         try {
             TimeUnit.MILLISECONDS.sleep(duration);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            Thread.currentThread().interrupt();
         }
     }
 

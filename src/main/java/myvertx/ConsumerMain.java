@@ -7,7 +7,10 @@ class ConsumerMain extends AbstractVerticle {
     @Override
     public void start(Future<Void> future) {
         vertx.deployVerticle(Worker.class.getName(),
-                new DeploymentOptions().setWorker(true).setWorkerPoolName("worker-th1").setWorkerPoolSize(4)
+                new DeploymentOptions()
+                        .setWorker(true)
+                        .setWorkerPoolName("worker-th1")
+                        .setWorkerPoolSize(4)
                         .setInstances(4));
     }
 

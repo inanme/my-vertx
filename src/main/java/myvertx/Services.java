@@ -1,14 +1,15 @@
 package myvertx;
 
 import io.vertx.core.AbstractVerticle;
-import io.vertx.core.Future;
 
 class Services {
 
     static class Service1 extends AbstractVerticle {
-        @Override
-        public void start(Future<Void> future) {
-            vertx.eventBus().consumer("service1", event -> {
+        public static final String NAME = "service1";
+
+        public void start() {
+            Thread.currentThread().setName(NAME);
+            vertx.eventBus().consumer(NAME, event -> {
                 Functions.sleep(300L);
                 event.reply("service1 - " + event.body());
             });
@@ -16,9 +17,12 @@ class Services {
     }
 
     static class Service2 extends AbstractVerticle {
+        public static final String NAME = "service2";
+
         @Override
-        public void start(Future<Void> future) {
-            vertx.eventBus().consumer("service2", event -> {
+        public void start() {
+            Thread.currentThread().setName(NAME);
+            vertx.eventBus().consumer(NAME, event -> {
                 Functions.sleep(200L);
                 event.reply("service2 - " + event.body());
             });
@@ -26,9 +30,12 @@ class Services {
     }
 
     static class Service3 extends AbstractVerticle {
+        public static final String NAME = "service3";
+
         @Override
-        public void start(Future<Void> future) {
-            vertx.eventBus().consumer("service3", event -> {
+        public void start() {
+            Thread.currentThread().setName(NAME);
+            vertx.eventBus().consumer(NAME, event -> {
                 Functions.sleep(100L);
                 event.reply("service3 - " + event.body());
             });
