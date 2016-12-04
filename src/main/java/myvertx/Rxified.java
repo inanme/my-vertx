@@ -51,7 +51,7 @@ class Rxified {
 
         @Override
         public void start() {
-            Thread.currentThread().setName("Problem");
+            Thread.currentThread().setName("problem");
             vertx.eventBus().<String>consumer("problem", message -> {
                 alreadyEncoded(message.body(), ar1 -> {
                     if (ar1.succeeded()) {
@@ -61,15 +61,15 @@ class Rxified {
                                     if (ar3.succeeded()) {
                                         message.reply(ar3.result());
                                     } else {
-                                        System.out.println("err3");
+                                        message.reply("problem - " + ar3.cause().getMessage());
                                     }
                                 });
                             } else {
-                                System.out.println("err2");
+                                message.reply("problem - " + ar2.cause().getMessage());
                             }
                         });
                     } else {
-                        System.out.println("err1");
+                        message.reply("problem - " + ar1.cause().getMessage());
                     }
                 });
             });
@@ -96,13 +96,41 @@ class Rxified {
         }
 
         void retrieveStatusAndStore(String message, Handler<AsyncResult<String>> handler) {
-            vertx.eventBus().<String>send(Service2.NAME, message, ar -> {
+            vertx.eventBus().<String>send(Service3.NAME, message, ar -> {
                 if (ar.succeeded()) {
                     handler.handle(Future.succeededFuture(ar.result().body()));
                 } else {
                     handler.handle(Future.failedFuture(ar.cause()));
                 }
             });
+        }
+    }
+
+    static class Solution extends io.vertx.rxjava.core.AbstractVerticle {
+
+        @Override
+        public void start() {
+            Thread.currentThread().setName("solution");
+            vertx.eventBus().<String>consumer("solution", message -> {
+                alreadyEncoded(message.body())
+                        .flatMap(msg1 -> requestMediaProcessing(msg1.body()))
+                        .flatMap(msg2 -> retrieveStatusAndStore(msg2.body()))
+                        .subscribe(
+                                msg3 -> message.reply(msg3.body()),
+                                throwable -> message.reply("solution - " + throwable.getMessage()));
+            });
+        }
+
+        Observable<Message<String>> alreadyEncoded(String message) {
+            return vertx.eventBus().sendObservable(Service1.NAME, message);
+        }
+
+        Observable<Message<String>> requestMediaProcessing(String message) {
+            return vertx.eventBus().sendObservable(Service2.NAME, message);
+        }
+
+        Observable<Message<String>> retrieveStatusAndStore(String message) {
+            return vertx.eventBus().sendObservable(Service3.NAME, message);
         }
     }
 
@@ -113,6 +141,8 @@ class Rxified {
         vertx.deployVerticle(new Service2());
         vertx.deployVerticle(new Service3());
         vertx.deployVerticle(new Problem());
-        vertx.eventBus().send("problem", "input", event -> System.out.println(event.result().body()));
+        vertx.deployVerticle(new Solution());
+        vertx.eventBus().send("problem", "input-problem", event -> System.out.println(event.result().body()));
+        vertx.eventBus().send("solution", "input-solution", event -> System.out.println(event.result().body()));
     }
 }
