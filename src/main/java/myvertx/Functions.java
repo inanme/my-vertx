@@ -7,9 +7,9 @@ import java.util.concurrent.TimeUnit;
 
 class Functions {
 
-    static void sleep(long duration) {
+    static void sleep(long milis) {
         try {
-            TimeUnit.MILLISECONDS.sleep(duration);
+            TimeUnit.MILLISECONDS.sleep(milis);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
