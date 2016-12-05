@@ -50,7 +50,7 @@ public class RandomTests extends Infra {
     public void test4() {
         m2(ar -> {
             if (ar.succeeded()) {
-                log("ok" + ar.result());
+                log("ok : " + ar.result());
             } else if (ar.failed()) {
                 log("failed");
             }
@@ -75,9 +75,38 @@ public class RandomTests extends Infra {
                         throwable -> handler.handle(Future.failedFuture(throwable)));
     }
 
+    @Test
+    public void test5() {
+        m3(ar -> {
+            if (ar.succeeded()) {
+                log("ok : " + ar.result());
+            } else if (ar.failed()) {
+                log("failed");
+            }
+        });
+        log("waiting...");
+        giveMeTime(3);
+    }
+
+    public void m3(Handler<AsyncResult<Void>> handler) {
+        Observable.<Void>create(subscriber -> {
+            m1(ar -> {
+                if (ar.succeeded()) {
+                    subscriber.onNext(null);
+                    subscriber.onCompleted();
+                } else if (ar.failed()) {
+                    subscriber.onError(ar.cause());
+                }
+            });
+            log("submitted");
+        }).subscribe(it -> handler.handle(Future.succeededFuture(it)),
+                throwable -> handler.handle(Future.failedFuture(throwable)));
+    }
+
     public void m1(Handler<AsyncResult<Integer>> handler) {
         thread1.submit(() -> {
             //Functions.sleep(Long.MAX_VALUE);
+            //handler.handle(Future.failedFuture(new RuntimeException("d")));
             handler.handle(Future.succeededFuture(2));
         });
     }
