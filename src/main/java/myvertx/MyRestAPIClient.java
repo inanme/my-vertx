@@ -88,9 +88,9 @@ class MyRestAPIClient {
         TimeUnit.SECONDS.sleep(2);
         client.getNames(ar -> {
             if (ar.succeeded()) {
-                Functions.log("Names: " + ar.result().encode());
+                Functions.log("Names: ", ar.result().encode());
             } else {
-                Functions.log("Unable to retrieve the list of names: " + ar.cause().getMessage());
+                Functions.log("Unable to retrieve the list of names: ", ar.cause().getMessage());
             }
         });
     }

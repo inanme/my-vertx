@@ -3,7 +3,9 @@ package myvertx;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 class Functions {
 
@@ -19,7 +21,8 @@ class Functions {
         return LocalDateTime.now(ZoneId.systemDefault()).format(DateTimeFormatter.ISO_DATE_TIME);
     }
 
-    static void log(Object log) {
-        System.err.format("%s %s: %s%n", now(), Thread.currentThread().getName(), log);
+    static void log(Object... objects) {
+        System.err.format("%s %s: %s%n", now(), Thread.currentThread().getName(),
+                Arrays.stream(objects).map(Object::toString).collect(Collectors.joining(",")));
     }
 }

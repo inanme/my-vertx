@@ -17,25 +17,6 @@ import java.util.stream.IntStream;
 
 public class RandomTests extends Infra {
 
-    private final Predicate<Integer> EVEN = (x) -> x % 2 == 0;
-
-    private final Predicate<Integer> ODD = EVEN.negate();
-
-    @Test
-    public void test1() {
-        List<Integer> collect = IntStream.range(1, 10).boxed().collect(Collectors.toList());
-        collect.removeIf(EVEN);
-        Assert.assertThat(collect, CoreMatchers.is(Arrays.asList(1, 3, 5, 7, 9)));
-        collect.forEach(System.out::println);
-    }
-
-    @Test
-    public void test2() {
-        List<Integer> collect = IntStream.range(1, 10).boxed().collect(Collectors.toList());
-        collect.removeIf(ODD);
-        Assert.assertThat(collect, CoreMatchers.is(Arrays.asList(2, 4, 6, 8)));
-    }
-
     @Test
     public void test3() {
         Random random = new Random(Long.MAX_VALUE);
