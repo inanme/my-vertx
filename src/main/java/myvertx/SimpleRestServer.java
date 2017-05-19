@@ -1,7 +1,9 @@
 package myvertx;
 
 import io.vertx.core.AbstractVerticle;
+import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Launcher;
+import io.vertx.core.Vertx;
 import io.vertx.core.json.Json;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.BodyHandler;
@@ -11,15 +13,13 @@ import io.vertx.servicediscovery.types.HttpEndpoint;
 import java.util.ArrayList;
 import java.util.List;
 
-class MyRestAPIVerticle extends AbstractVerticle {
+import static myvertx.Functions.log;
 
-    public static void main(String... args1) {
-        String[] args = {"run", MyRestAPIVerticle.class.getName()};
-        Launcher.main(args);
-    }
+public class SimpleRestServer extends AbstractVerticle {
 
-    // Maintain a simple list of names
     private List<String> names = new ArrayList<>();
+
+    static final String NAME_ENDPOINT = "/name";
 
     @Override
     public void start() {
@@ -32,7 +32,7 @@ class MyRestAPIVerticle extends AbstractVerticle {
         });
 
         // Register a second router retrieving all stored names as JSON
-        router.get("/names")
+        router.get(NAME_ENDPOINT)
                 .produces("application/json")
                 .handler(rc -> rc.response()
                         .putHeader("content-type", "application/json")
@@ -43,45 +43,45 @@ class MyRestAPIVerticle extends AbstractVerticle {
         router.route().handler(BodyHandler.create());
 
         // Register a third route to add names
-        router.post("/names").handler(
+        router.post(NAME_ENDPOINT).handler(
                 rc -> {
-                    // Read the body
                     String name = rc.getBody().toString();
                     if (name.isEmpty()) {
-                        // Invalid body -> Bad request
-                        rc.response().setStatusCode(400).end();
+                        rc.response().setStatusCode(400).end("No names");
                     } else if (names.contains(name)) {
-                        // Already included name -> Conflict
-                        rc.response().setStatusCode(409).end();
+                        rc.response().setStatusCode(409).end("Duplicated");
                     } else {
-                        // Add the name to the list -> Created
                         names.add(name);
                         rc.response().setStatusCode(201).end(name);
                     }
                 });
 
-        vertx.createHttpServer()
-                // Pass the router's accept method as request handler
-                .requestHandler(router::accept)
-                .listen(8080);
-
-        serviceDiscovery();
+        vertx.createHttpServer().requestHandler(router::accept).listen(8080);
     }
 
-    public void serviceDiscovery() {
+    private void serviceDiscovery() {
         ServiceDiscovery discovery = ServiceDiscovery.create(vertx);
         discovery.publish(HttpEndpoint.createRecord(
                 "my-rest-api",
                 "localhost", 8080,
-                "/names"),
+                NAME_ENDPOINT),
                 ar -> {
                     if (ar.succeeded()) {
-                        Functions.log("REST API published");
+                        log("REST API published");
                     } else {
-                        Functions.log("Unable to publish the REST API: " + ar.cause().getMessage());
+                        log("Unable to publish the REST API: " + ar.cause().getMessage());
                     }
                 });
+    }
 
+    public static void main1(String... args) {
+        Vertx vertx = Vertx.vertx();
+        vertx.deployVerticle(SimpleRestServer.class.getName(), new DeploymentOptions().setInstances(16));
+    }
+
+    public static void main(String... __) {
+        String[] args = {"run", SimpleRestServer.class.getName()};
+        Launcher.main(args);
     }
 
 }

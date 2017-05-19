@@ -6,9 +6,11 @@ import io.vertx.rxjava.core.eventbus.Message;
 import myvertx.Services.Service1;
 import myvertx.Services.Service2;
 import myvertx.Services.Service3;
-import rx.Observable;
+import rx.Single;
 
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static java.lang.System.err;
 
 class Rxified {
 
@@ -21,11 +23,11 @@ class Rxified {
             vertx.setPeriodic(2000L, l -> {
                 Functions.log("new event");
                 EventBus eventBus = vertx.eventBus();
-                Observable<Message<String>> service1 = eventBus.sendObservable("service1", atomicInteger.getAndIncrement());
-                Observable<Message<String>> service2 = eventBus.sendObservable("service2", atomicInteger.getAndIncrement());
-                Observable<Message<String>> service3 = eventBus.sendObservable("service3", atomicInteger.getAndIncrement());
+                Single<Message<String>> service1 = eventBus.rxSend("service1", atomicInteger.getAndIncrement());
+                Single<Message<String>> service2 = eventBus.rxSend("service2", atomicInteger.getAndIncrement());
+                Single<Message<String>> service3 = eventBus.rxSend("service3", atomicInteger.getAndIncrement());
 
-                Observable.zip(service1, service2, service3,
+                Single.zip(service1, service2, service3,
                         (x, y, z) -> String.format("%s %s %s", x.body(), y.body(), z.body()))
                         .subscribe(Functions::log);
             });
@@ -39,9 +41,9 @@ class Rxified {
             vertx.setPeriodic(2000L, l -> {
                 Functions.log("new event");
                 EventBus eventBus = vertx.eventBus();
-                eventBus.<String>sendObservable("service1", "init")
-                        .flatMap(message -> eventBus.<String>sendObservable("service2", message.body()))
-                        .flatMap(message -> eventBus.<String>sendObservable("service3", message.body()))
+                eventBus.<String>rxSend("service1", "init")
+                        .flatMap(message -> eventBus.<String>rxSend("service2", message.body()))
+                        .flatMap(message -> eventBus.<String>rxSend("service3", message.body()))
                         .subscribe(message -> Functions.log(message.body()));
             });
         }
@@ -121,16 +123,16 @@ class Rxified {
             });
         }
 
-        Observable<Message<String>> alreadyEncoded(String message) {
-            return vertx.eventBus().sendObservable(Service1.NAME, message);
+        Single<Message<String>> alreadyEncoded(String message) {
+            return vertx.eventBus().rxSend(Service1.NAME, message);
         }
 
-        Observable<Message<String>> requestMediaProcessing(String message) {
-            return vertx.eventBus().sendObservable(Service2.NAME, message);
+        Single<Message<String>> requestMediaProcessing(String message) {
+            return vertx.eventBus().rxSend(Service2.NAME, message);
         }
 
-        Observable<Message<String>> retrieveStatusAndStore(String message) {
-            return vertx.eventBus().sendObservable(Service3.NAME, message);
+        Single<Message<String>> retrieveStatusAndStore(String message) {
+            return vertx.eventBus().rxSend(Service3.NAME, message);
         }
     }
 
@@ -142,7 +144,7 @@ class Rxified {
         vertx.deployVerticle(new Service3());
         vertx.deployVerticle(new Problem());
         vertx.deployVerticle(new Solution());
-        vertx.eventBus().send("problem", "input-problem", event -> System.out.println(event.result().body()));
-        vertx.eventBus().send("solution", "input-solution", event -> System.out.println(event.result().body()));
+        vertx.eventBus().send("problem", "input-problem", event -> err.println(event.result().body()));
+        vertx.eventBus().send("solution", "input-solution", event -> err.println(event.result().body()));
     }
 }
