@@ -27,20 +27,20 @@ public class Infra {
 
     protected Scheduler ioScheduler = Schedulers.from(ioPool);
 
-    private AtomicInteger threadFactory1 = new AtomicInteger();
+    private AtomicInteger threadCounter1 = new AtomicInteger();
 
-    private AtomicInteger threadFactory2 = new AtomicInteger();
+    private AtomicInteger threadCounter2 = new AtomicInteger();
 
-    private AtomicInteger threadFactory3 = new AtomicInteger();
+    private AtomicInteger threadCounter3 = new AtomicInteger();
 
     protected ExecutorService thread1 =
-            Executors.newCachedThreadPool(r -> new Thread(r, "thread1-" + threadFactory1.getAndIncrement()));
+            Executors.newCachedThreadPool(r -> new Thread(r, "thread1-" + threadCounter1.getAndIncrement()));
 
     protected ExecutorService thread2 =
-            Executors.newCachedThreadPool(r -> new Thread(r, "thread2-" + threadFactory2.getAndIncrement()));
+            Executors.newCachedThreadPool(r -> new Thread(r, "thread2-" + threadCounter2.getAndIncrement()));
 
     protected ExecutorService thread3 =
-            Executors.newCachedThreadPool(r -> new Thread(r, "thread3-" + threadFactory3.getAndIncrement()));
+            Executors.newCachedThreadPool(r -> new Thread(r, "thread3-" + threadCounter3.getAndIncrement()));
 
     protected Random random = new Random(System.currentTimeMillis());
 

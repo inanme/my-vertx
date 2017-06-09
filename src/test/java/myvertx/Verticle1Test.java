@@ -3,6 +3,8 @@ package myvertx;
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpClient;
 import io.vertx.core.json.JsonObject;
+import io.vertx.core.logging.Logger;
+import io.vertx.core.logging.LoggerFactory;
 import io.vertx.ext.unit.Async;
 import io.vertx.ext.unit.TestContext;
 import io.vertx.ext.unit.junit.VertxUnitRunner;
@@ -23,6 +25,8 @@ import static myvertx.Functions.getAsyncResultHandler;
 @RunWith(VertxUnitRunner.class)
 public class Verticle1Test {
 
+    private static final Logger log = LoggerFactory.getLogger(Verticle1Test.class);
+
     private Vertx vertx;
 
     private TestingServer testingServer;
@@ -32,10 +36,15 @@ public class Verticle1Test {
 
     @Before
     public void setUp(TestContext context) throws Exception {
+        Async async = context.async();
         vertx = Vertx.vertx();
-        vertx.deployVerticle(new Verticle1(zkConfiguration), context.asyncAssertSuccess());
         testingServer = new TestingServer(4296);
-
+        vertx.deployVerticle(new Verticle1(zkConfiguration), ar -> {
+            if (ar.succeeded()) {
+                log.info("finished setup");
+                async.complete();
+            }
+        });
     }
 
     @After
@@ -50,6 +59,8 @@ public class Verticle1Test {
 
     @Test
     public void testMyApplication(TestContext context) throws Exception {
+        log.info("begin test");
+
         ServiceDiscovery serviceDiscovery = ServiceDiscovery.create(vertx, zkConfiguration);
 
         /*

@@ -1,9 +1,12 @@
 package myvertx;
 
+import com.google.common.collect.ImmutableList;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Handler;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
+import io.vertx.ext.jdbc.JDBCClient;
+import io.vertx.ext.sql.SQLConnection;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.lang.reflect.Array;
@@ -19,6 +22,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -58,6 +62,17 @@ class Functions {
                 completableFuture.complete(Pair.of(associate, r.result()));
             } else {
                 completableFuture.completeExceptionally(r.cause());
+            }
+        };
+    }
+
+    public static <T> Handler<AsyncResult<T>> getAsyncResultHandler(CompletableFuture<T> completableFuture,
+                                                                    Function<Throwable, Exception> exceptionFunction) {
+        return r -> {
+            if (r.succeeded()) {
+                completableFuture.complete(r.result());
+            } else {
+                completableFuture.completeExceptionally(exceptionFunction.apply(r.cause()));
             }
         };
     }
@@ -128,9 +143,30 @@ class Functions {
                 map -> new JsonObject(Collections.unmodifiableMap(map)));
     }
 
-
     public static <T> Stream<T> toStream(Optional<T> tOptional) {
         return tOptional.map(Stream::of).orElseGet(Stream::empty);
+    }
+
+    public static CompletableFuture<SQLConnection> getConnection(JDBCClient jdbcClient) {
+        CompletableFuture<SQLConnection> completableFuture = new CompletableFuture<>();
+        jdbcClient.getConnection(getAsyncResultHandler(completableFuture, th -> new Exception("Failed to acquire db connection", th)));
+        return completableFuture;
+    }
+
+    public static JsonArray jsonArray(Object object) {
+        return new JsonArray(ImmutableList.of(object));
+    }
+
+    public static JsonArray jsonArray(Object object1, Object object2) {
+        return new JsonArray(ImmutableList.of(object1, object2));
+    }
+
+    public static JsonArray jsonArray(Object object1, Object object2, Object object3) {
+        return new JsonArray(ImmutableList.of(object1, object2, object3));
+    }
+
+    public static JsonArray jsonArray(Object object1, Object object2, Object object3, Object object4, Object... rest) {
+        return new JsonArray(ImmutableList.builder().add(object1).add(object2).add(object3).add(object4).addAll(Arrays.asList(rest)).build());
     }
 
 }

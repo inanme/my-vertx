@@ -3,17 +3,10 @@ package myvertx;
 import io.vertx.core.AsyncResult;
 import io.vertx.core.Future;
 import io.vertx.core.Handler;
-import org.hamcrest.CoreMatchers;
-import org.junit.Assert;
 import org.junit.Test;
-import rx.Observable;
+import rx.Single;
 
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 public class RandomTests extends Infra {
 
@@ -41,19 +34,17 @@ public class RandomTests extends Infra {
     }
 
     public void m2(Handler<AsyncResult<Integer>> handler) {
-        Observable.<Integer>create(subscriber -> {
+        Single.<Integer>create(subscriber -> {
             m1(ar -> {
                 if (ar.succeeded()) {
-                    subscriber.onNext(ar.result());
-                    subscriber.onCompleted();
+                    subscriber.onSuccess(ar.result());
                 } else if (ar.failed()) {
                     subscriber.onError(ar.cause());
                 }
             });
             log("submitted");
         }).map(Math::incrementExact)
-                .subscribe(it -> handler.handle(Future.succeededFuture(it)),
-                        throwable -> handler.handle(Future.failedFuture(throwable)));
+                .subscribe(it -> handler.handle(Future.succeededFuture(it)), throwable -> handler.handle(Future.failedFuture(throwable)));
     }
 
     @Test
@@ -70,11 +61,10 @@ public class RandomTests extends Infra {
     }
 
     public void m3(Handler<AsyncResult<Void>> handler) {
-        Observable.<Void>create(subscriber -> {
+        Single.<Void>create(subscriber -> {
             m1(ar -> {
                 if (ar.succeeded()) {
-                    subscriber.onNext(null);
-                    subscriber.onCompleted();
+                    subscriber.onSuccess(null);
                 } else if (ar.failed()) {
                     subscriber.onError(ar.cause());
                 }
